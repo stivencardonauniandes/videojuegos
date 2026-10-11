@@ -1,0 +1,20 @@
+{
+    "Enemy01": {
+        "size": {"x": 50, "y": 50},
+        "color": {"r": 255, "g": 50, "b": 50},
+        "velocity_min": 50,
+        "velocity_max": 100
+    },
+    "Enemy02": {
+        "size": {"x": 40, "y": 40},
+        "color": {"r": 50, "g": 50, "b": 255},
+        "velocity_min": 100,
+        "velocity_max": 150
+    },
+    "Enemy03": {
+        "size": {"x": 30, "y": 30},
+        "color": {"r": 255, "g": 255, "b": 50},
+        "velocity_min": 150,
+        "velocity_max": 200
+    }
+}
