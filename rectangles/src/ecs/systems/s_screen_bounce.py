@@ -1,11 +1,20 @@
-
-
 import esper
 import pygame
 
 from src.ecs.components.c_transform import CTransform
 from src.ecs.components.c_velocity import CVelocity
 from src.ecs.components.c_surface import CSurface
+
+def _bounce_axis(pos:float, vel:float, size:int, limit:int):
+    """Devuelve (pos, vel) de un eje, evaluado de forma independiente."""
+    if size >= limit:
+        # No cabe en la pantalla: se centra y no rebota.
+        return (limit - size) / 2, vel
+    if pos < 0:
+        return 0, abs(vel)
+    if pos + size > limit:
+        return limit - size, -abs(vel)
+    return pos, vel
 
 def system_screen_bounce(screen:pygame.Surface):
     screen_rect = screen.get_rect()
@@ -15,13 +24,8 @@ def system_screen_bounce(screen:pygame.Surface):
     c_v:CVelocity
     c_s:CSurface
     for _, (c_t, c_v, c_s) in components:
-        cuad_rect = c_s.surf.get_rect(topleft=c_t.pos)
-        if cuad_rect.left < 0 or cuad_rect.right > screen_rect.width:
-            c_v.vel.x *= -1
-            cuad_rect.clamp_ip(screen_rect)
-            c_t.pos.x = cuad_rect.x
-
-        if cuad_rect.top < 0 or cuad_rect.bottom > screen_rect.height:
-            c_v.vel.y *= -1
-            cuad_rect.clamp_ip(screen_rect)
-            c_t.pos.y = cuad_rect.y
+        size = c_s.surf.get_size()
+        c_t.pos.x, c_v.vel.x = _bounce_axis(c_t.pos.x, c_v.vel.x,
+                                            size[0], screen_rect.width)
+        c_t.pos.y, c_v.vel.y = _bounce_axis(c_t.pos.y, c_v.vel.y,
+                                            size[1], screen_rect.height)
