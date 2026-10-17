@@ -8,5 +8,6 @@ class CEnemySpawner:
                 "position": event["position"],
                 "triggered": False,
             }
-            for event in level_data["enemy_spawn_events"]
+            for event in sorted(level_data["enemy_spawn_events"],
+                                key=lambda e: e["time"])
         ]
