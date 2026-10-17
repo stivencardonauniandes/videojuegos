@@ -29,6 +29,6 @@ def create_enemy_square(enemy_info:dict, pos:dict):
     vel = pygame.Vector2(speed, 0).rotate(random.uniform(0, 360))
     create_square(size, pygame.Vector2(pos["x"], pos["y"]), vel, col)
 
-def create_enemy_spawner(level_data:dict):
+def create_enemy_spawner(level_data:dict, enemies_cfg:dict):
     spawner_entity = esper.create_entity()
-    esper.add_component(spawner_entity, CEnemySpawner(level_data))
+    esper.add_component(spawner_entity, CEnemySpawner(level_data, enemies_cfg))

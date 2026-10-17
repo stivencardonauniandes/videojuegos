@@ -51,7 +51,7 @@ class GameEngine:
         self._clean()
 
     def _create(self):
-        create_enemy_spawner(self.level_cfg)
+        create_enemy_spawner(self.level_cfg, self.enemies_cfg)
 
     def _calculate_time(self):
         self.clock.tick(self.framerate)
@@ -63,7 +63,7 @@ class GameEngine:
                 self.is_running = False
 
     def _update(self):
-        system_enemy_spawner(self.enemies_cfg, self.delta_time)
+        system_enemy_spawner(self.delta_time)
         system_movement(self.delta_time)
         system_screen_bounce(self.screen)
 
