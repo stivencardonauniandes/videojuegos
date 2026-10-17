@@ -1,4 +1,6 @@
 {
+    "player_spawn": {"position": {"x": 305, "y": 165}},
+    "max_bullets": 5,
     "enemy_spawn_events": [
         {"time": 2.0,  "enemy_type": "Enemy01", "position": {"x": 100, "y": 100}},
         {"time": 4.0,  "enemy_type": "Enemy02", "position": {"x": 300, "y": 200}},

@@ -4,6 +4,7 @@ import pygame
 from src.ecs.components.c_transform import CTransform
 from src.ecs.components.c_velocity import CVelocity
 from src.ecs.components.c_surface import CSurface
+from src.ecs.components.c_tag_enemy import CTagEnemy
 
 def _bounce_axis(pos:float, vel:float, size:int, limit:int):
     """Devuelve (pos, vel) de un eje, evaluado de forma independiente."""
@@ -18,12 +19,12 @@ def _bounce_axis(pos:float, vel:float, size:int, limit:int):
 
 def system_screen_bounce(screen:pygame.Surface):
     screen_rect = screen.get_rect()
-    components = esper.get_components(CTransform, CVelocity, CSurface)
+    components = esper.get_components(CTransform, CVelocity, CSurface, CTagEnemy)
 
     c_t:CTransform
     c_v:CVelocity
     c_s:CSurface
-    for _, (c_t, c_v, c_s) in components:
+    for _, (c_t, c_v, c_s, _) in components:
         size = c_s.surf.get_size()
         c_t.pos.x, c_v.vel.x = _bounce_axis(c_t.pos.x, c_v.vel.x,
                                             size[0], screen_rect.width)

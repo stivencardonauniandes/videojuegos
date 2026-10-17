@@ -1,6 +1,6 @@
 # Rectangles
 
-Rectángulos de colores que aparecen según un nivel y rebotan en la pantalla.
+Rectángulos de colores que aparecen según un nivel y rebotan en la pantalla. El jugador se mueve con las flechas y dispara balas con el clic izquierdo hacia el ratón para destruir los rectángulos.
 Hecho con Python, pygame-ce y esper (ECS).
 
 ## Requisitos
@@ -49,7 +49,9 @@ Todo está en `assets/cfg/`:
 
 - `window.json`: título, tamaño, color de fondo y framerate.
 - `enemies.json`: tipos de rectángulo (tamaño, color, velocidad mínima y máxima).
-- `level_01.json`: eventos de aparición (tiempo, tipo de enemigo y posición).
+- `level_01.json`: posición inicial del jugador (`player_spawn`), límite de balas (`max_bullets`) y eventos de aparición (tiempo, tipo de enemigo y posición).
+- `player.json`: tamaño, color y velocidad de entrada (`input_velocity`) del jugador.
+- `bullet.json`: tamaño, color y velocidad (`velocity`) de la bala.
 
 Para probar otra configuración, reemplaza el contenido de estos archivos.
 
@@ -59,6 +61,6 @@ Para probar otra configuración, reemplaza el contenido de estos archivos.
 main.py                         Punto de entrada
 src/engine/game_engine.py       Game loop y carga de configuración
 src/create/prefab_creator.py    Creación de entidades
-src/ecs/components/             CTransform, CVelocity, CSurface, CEnemySpawner
-src/ecs/systems/                Movimiento, rebote, dibujado, spawner
+src/ecs/components/             CTransform, CVelocity, CSurface, CEnemySpawner, CInputCommand, CSpawnPoint, CTagPlayer/Bullet/Enemy
+src/ecs/systems/                Movimiento, rebote, dibujado, spawner, input, límites de pantalla, colisiones
 ```
