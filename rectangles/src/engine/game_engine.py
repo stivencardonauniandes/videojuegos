@@ -14,6 +14,10 @@ from src.ecs.components.c_transform import CTransform
 from src.ecs.components.c_velocity import CVelocity
 from src.ecs.systems.s_collision_bullet_enemy import system_collision_bullet_enemy
 from src.ecs.systems.s_collision_player_enemy import system_collision_player_enemy
+from src.ecs.systems.s_animation import system_animation
+from src.ecs.systems.s_explosion_end import system_explosion_end
+from src.ecs.systems.s_hunter_state import system_hunter_state
+from src.ecs.systems.s_player_animation import system_player_animation
 from src.ecs.systems.s_input_player import system_input_player
 from src.ecs.systems.s_screen_bullet import system_screen_bullet
 from src.ecs.systems.s_screen_player import system_screen_player
@@ -53,6 +57,8 @@ class GameEngine:
             self.player_cfg = json.load(player_file)
         with open("assets/cfg/bullet.json", encoding="utf-8") as bullet_file:
             self.bullet_cfg = json.load(bullet_file)
+        with open("assets/cfg/explosion.json", encoding="utf-8") as explosion_file:
+            self.explosion_cfg = json.load(explosion_file)
         with open("assets/cfg/level_01.json", encoding="utf-8") as level_file:
             self.level_cfg = json.load(level_file)
 
@@ -85,12 +91,16 @@ class GameEngine:
 
     def _update(self):
         system_enemy_spawner(self.delta_time)
+        system_hunter_state(self.delta_time)
         system_movement(self.delta_time)
         system_screen_bounce(self.screen)
         system_screen_player(self.screen)
         system_screen_bullet(self.screen)
-        system_collision_bullet_enemy()
-        system_collision_player_enemy()
+        system_collision_bullet_enemy(self.explosion_cfg)
+        system_collision_player_enemy(self.explosion_cfg)
+        system_player_animation()
+        system_animation(self.delta_time)
+        system_explosion_end()
 
     def _draw(self):
         self.screen.fill(self.bg_color)
@@ -118,7 +128,7 @@ class GameEngine:
             return
         c_t = esper.component_for_entity(self._player_entity, CTransform)
         c_s = esper.component_for_entity(self._player_entity, CSurface)
-        create_bullet(self.bullet_cfg, c_t.pos, c_s.surf.get_size(),
+        create_bullet(self.bullet_cfg, c_t.pos, c_s.area.size,
                       pygame.Vector2(mouse_pos))
 
     def _clean(self):

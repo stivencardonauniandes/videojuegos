@@ -1,20 +1,36 @@
 {
     "Enemy01": {
-        "size": {"x": 50, "y": 50},
-        "color": {"r": 255, "g": 50, "b": 50},
+        "image": "assets/img/asteroid_01.png",
         "velocity_min": 50,
         "velocity_max": 100
     },
     "Enemy02": {
-        "size": {"x": 40, "y": 40},
-        "color": {"r": 50, "g": 50, "b": 255},
+        "image": "assets/img/asteroid_02.png",
         "velocity_min": 100,
         "velocity_max": 150
     },
     "Enemy03": {
-        "size": {"x": 30, "y": 30},
-        "color": {"r": 255, "g": 255, "b": 50},
+        "image": "assets/img/asteroid_03.png",
         "velocity_min": 150,
         "velocity_max": 200
+    },
+    "Enemy04": {
+        "image": "assets/img/asteroid_04.png",
+        "velocity_min": 60,
+        "velocity_max": 120
+    },
+    "Hunter": {
+        "image": "assets/img/enemy.png",
+        "velocity_chase": 80,
+        "velocity_return": 120,
+        "distance_start_chase": 120,
+        "distance_start_return": 200,
+        "animations": {
+            "number_frames": 6,
+            "list": [
+                {"name": "IDLE", "start": 0, "end": 0, "framerate": 1},
+                {"name": "MOVE", "start": 1, "end": 5, "framerate": 10}
+            ]
+        }
     }
 }

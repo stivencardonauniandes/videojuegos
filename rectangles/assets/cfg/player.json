@@ -1,12 +1,11 @@
 {
-    "size": {
-        "x": 30,
-        "y": 30
-    },
-    "color": {
-        "r": 255,
-        "g": 255,
-        "b": 255
-    },
-    "input_velocity": 200
+    "image": "assets/img/player.png",
+    "input_velocity": 200,
+    "animations": {
+        "number_frames": 4,
+        "list": [
+            {"name": "IDLE", "start": 0, "end": 0, "framerate": 1},
+            {"name": "MOVE", "start": 1, "end": 3, "framerate": 10}
+        ]
+    }
 }

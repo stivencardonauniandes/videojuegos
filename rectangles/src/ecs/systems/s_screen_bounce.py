@@ -25,7 +25,7 @@ def system_screen_bounce(screen:pygame.Surface):
     c_v:CVelocity
     c_s:CSurface
     for _, (c_t, c_v, c_s, _) in components:
-        size = c_s.surf.get_size()
+        size = c_s.area.size
         c_t.pos.x, c_v.vel.x = _bounce_axis(c_t.pos.x, c_v.vel.x,
                                             size[0], screen_rect.width)
         c_t.pos.y, c_v.vel.y = _bounce_axis(c_t.pos.y, c_v.vel.y,
