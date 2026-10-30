@@ -1,7 +1,11 @@
-# Rectangles
+# Solo Aliens Pa' (SAP)
 
 Rectángulos de colores que aparecen según un nivel y rebotan en la pantalla. El jugador se mueve con las flechas y dispara balas con el clic izquierdo hacia el ratón para destruir los rectángulos.
 Hecho con Python, pygame-ce y esper (ECS).
+
+## Itch.io
+
+- https://s7iven.itch.io/solo-aliens-pa-sap?secret=QiBssJd7PqESDhLhMHd4IBcRq0
 
 ## Requisitos
 
