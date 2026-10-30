@@ -12,7 +12,6 @@ def system_screen_player(screen:pygame.Surface):
     c_t:CTransform
     c_s:CSurface
     for _, (c_t, c_s, _) in components:
-        player_rect = c_s.get_rect(c_t.pos)
-        player_rect.clamp_ip(screen_rect)
-        c_t.pos.x = player_rect.x
-        c_t.pos.y = player_rect.y
+        # Se mantienen las coordenadas decimales (sin pasar por pygame.Rect)
+        c_t.pos.x = max(0, min(c_t.pos.x, screen_rect.w - c_s.area.w))
+        c_t.pos.y = max(0, min(c_t.pos.y, screen_rect.h - c_s.area.h))

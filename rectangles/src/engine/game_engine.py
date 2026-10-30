@@ -40,6 +40,8 @@ class GameEngine:
         self.is_running = False
         self.framerate = self.window_cfg["framerate"]
         self.delta_time = 0
+        self._player_keys = {"PLAYER_LEFT": False, "PLAYER_RIGHT": False,
+                             "PLAYER_UP": False, "PLAYER_DOWN": False}
         self.bg_color = pygame.Color(self.window_cfg["bg_color"]["r"],
                                      self.window_cfg["bg_color"]["g"],
                                      self.window_cfg["bg_color"]["b"])
@@ -108,20 +110,23 @@ class GameEngine:
         pygame.display.flip()
 
     def _do_action(self, c_input:CInputCommand):
-        c_v = esper.component_for_entity(self._player_entity, CVelocity)
-        speed = self.player_cfg["input_velocity"]
-        sign = 1 if c_input.phase == "START" else -1
-
-        if c_input.name == "PLAYER_LEFT":
-            c_v.vel.x -= speed * sign
-        elif c_input.name == "PLAYER_RIGHT":
-            c_v.vel.x += speed * sign
-        elif c_input.name == "PLAYER_UP":
-            c_v.vel.y -= speed * sign
-        elif c_input.name == "PLAYER_DOWN":
-            c_v.vel.y += speed * sign
+        if c_input.name in self._player_keys:
+            # Se guarda el estado de la tecla (no se acumula velocidad)
+            self._player_keys[c_input.name] = c_input.phase == "START"
+            self._update_player_velocity()
         elif c_input.name == "PLAYER_FIRE":
             self._fire_bullet(c_input.mouse_pos)
+
+    def _update_player_velocity(self):
+        keys = self._player_keys
+        direction = pygame.Vector2(
+            keys["PLAYER_RIGHT"] - keys["PLAYER_LEFT"],
+            keys["PLAYER_DOWN"] - keys["PLAYER_UP"])
+        if direction.length_squared() > 0:
+            # Normalizado: la diagonal no supera la velocidad configurada
+            direction.normalize_ip()
+        c_v = esper.component_for_entity(self._player_entity, CVelocity)
+        c_v.vel = direction * self.player_cfg["input_velocity"]
 
     def _fire_bullet(self, mouse_pos:tuple):
         if len(esper.get_component(CTagBullet)) >= self.level_cfg["max_bullets"]:
