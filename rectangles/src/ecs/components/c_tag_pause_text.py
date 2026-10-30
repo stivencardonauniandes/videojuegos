@@ -1,0 +1,2 @@
+class CTagPauseText:
+    pass

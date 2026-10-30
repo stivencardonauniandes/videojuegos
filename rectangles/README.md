@@ -51,7 +51,15 @@ Todo está en `assets/cfg/`:
 - `enemies.json`: tipos de rectángulo (tamaño, color, velocidad mínima y máxima).
 - `level_01.json`: posición inicial del jugador (`player_spawn`), límite de balas (`max_bullets`) y eventos de aparición (tiempo, tipo de enemigo y posición).
 - `player.json`: tamaño, color y velocidad de entrada (`input_velocity`) del jugador.
-- `bullet.json`: tamaño, color y velocidad (`velocity`) de la bala.
+- `bullet.json`: imagen, sonido y velocidad (`velocity`) de la bala.
+- `interface.json`: fuente, texto, color, tamaño y posición de los textos.
+- `special.json`: ataque especial (sonido, imagen, velocidad, `cooldown` de 2.5 s y temblor de pantalla).
+
+Todos los recursos (json, imágenes, sonidos, fuentes) se cargan con `ServiceLocator` (`src/engine/service_locator.py` y `src/engine/services/`).
+
+## Controles
+
+Flechas: mover. Clic izquierdo: disparar. Espacio: ataque especial (4 balas en diagonal, recarga 2.5 s, se ve en pantalla). P: pausar/reanudar.
 
 Para probar otra configuración, reemplaza el contenido de estos archivos.
 

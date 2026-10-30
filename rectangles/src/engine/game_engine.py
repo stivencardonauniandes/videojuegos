@@ -1,13 +1,21 @@
 import asyncio
-import json
 import pygame
 import esper
 
-from src.create.prefab_creator import (create_bullet, create_enemy_spawner,
+from src.create.prefab_creator import (create_bullet, create_cooldown_text,
+                                       create_enemy_spawner,
                                        create_input_player,
-                                       create_player_square)
+                                       create_instructions_text,
+                                       create_pause_text,
+                                       create_player_square,
+                                       create_screen_shake,
+                                       create_special_bullets,
+                                       create_title_text)
 from src.ecs.components.c_input_command import CInputCommand
+from src.ecs.components.c_screen_shake import CScreenShake
+from src.ecs.components.c_special_attack import CSpecialAttack
 from src.ecs.components.c_surface import CSurface
+from src.ecs.components.c_tag_pause_text import CTagPauseText
 from src.ecs.components.c_tag_bullet import CTagBullet
 from src.ecs.components.c_tag_player import CTagPlayer
 from src.ecs.components.c_transform import CTransform
@@ -24,6 +32,10 @@ from src.ecs.systems.s_screen_player import system_screen_player
 from src.ecs.systems.s_enemy_spawner import system_enemy_spawner
 from src.ecs.systems.s_movement import system_movement
 from src.ecs.systems.s_rendering import system_rendering
+from src.ecs.systems.s_cooldown_text import system_cooldown_text
+from src.ecs.systems.s_screen_shake import system_screen_shake
+from src.ecs.systems.s_special_cooldown import system_special_cooldown
+from src.engine.service_locator import ServiceLocator
 from src.ecs.systems.s_screen_bounce import system_screen_bounce
 
 class GameEngine:
@@ -40,6 +52,7 @@ class GameEngine:
         self.is_running = False
         self.framerate = self.window_cfg["framerate"]
         self.delta_time = 0
+        self.is_paused = False
         self._player_keys = {"PLAYER_LEFT": False, "PLAYER_RIGHT": False,
                              "PLAYER_UP": False, "PLAYER_DOWN": False}
         self.bg_color = pygame.Color(self.window_cfg["bg_color"]["r"],
@@ -51,18 +64,15 @@ class GameEngine:
         # Original bg_color (0, 200, 128)
 
     def _load_config_files(self):
-        with open("assets/cfg/window.json", encoding="utf-8") as window_file:
-            self.window_cfg = json.load(window_file)
-        with open("assets/cfg/enemies.json", encoding="utf-8") as enemies_file:
-            self.enemies_cfg = json.load(enemies_file)
-        with open("assets/cfg/player.json", encoding="utf-8") as player_file:
-            self.player_cfg = json.load(player_file)
-        with open("assets/cfg/bullet.json", encoding="utf-8") as bullet_file:
-            self.bullet_cfg = json.load(bullet_file)
-        with open("assets/cfg/explosion.json", encoding="utf-8") as explosion_file:
-            self.explosion_cfg = json.load(explosion_file)
-        with open("assets/cfg/level_01.json", encoding="utf-8") as level_file:
-            self.level_cfg = json.load(level_file)
+        configs = ServiceLocator.configs_service
+        self.window_cfg = configs.get("assets/cfg/window.json")
+        self.enemies_cfg = configs.get("assets/cfg/enemies.json")
+        self.player_cfg = configs.get("assets/cfg/player.json")
+        self.bullet_cfg = configs.get("assets/cfg/bullet.json")
+        self.explosion_cfg = configs.get("assets/cfg/explosion.json")
+        self.level_cfg = configs.get("assets/cfg/level_01.json")
+        self.interface_cfg = configs.get("assets/cfg/interface.json")
+        self.special_cfg = configs.get("assets/cfg/special.json")
 
     async def run(self) -> None:
         self._create()
@@ -77,8 +87,12 @@ class GameEngine:
 
     def _create(self):
         self._player_entity = create_player_square(
-            self.player_cfg, self.level_cfg["player_spawn"])
+            self.player_cfg, self.level_cfg["player_spawn"], self.special_cfg)
         create_input_player()
+        create_title_text(self.interface_cfg)
+        create_instructions_text(self.interface_cfg)
+        create_cooldown_text(self.interface_cfg)
+        create_screen_shake()
         create_enemy_spawner(self.level_cfg, self.enemies_cfg)
 
     def _calculate_time(self):
@@ -92,6 +106,9 @@ class GameEngine:
             system_input_player(event, self._do_action)
 
     def _update(self):
+        # En pausa no se ejecutan los sistemas: nada se mueve ni colisiona
+        if self.is_paused:
+            return
         system_enemy_spawner(self.delta_time)
         system_hunter_state(self.delta_time)
         system_movement(self.delta_time)
@@ -103,6 +120,9 @@ class GameEngine:
         system_player_animation()
         system_animation(self.delta_time)
         system_explosion_end()
+        system_special_cooldown(self.delta_time)
+        system_screen_shake(self.delta_time)
+        system_cooldown_text()
 
     def _draw(self):
         self.screen.fill(self.bg_color)
@@ -110,12 +130,39 @@ class GameEngine:
         pygame.display.flip()
 
     def _do_action(self, c_input:CInputCommand):
-        if c_input.name in self._player_keys:
+        if c_input.name == "PAUSE":
+            if c_input.phase == "START":
+                self._toggle_pause()
+        elif c_input.name in self._player_keys:
             # Se guarda el estado de la tecla (no se acumula velocidad)
             self._player_keys[c_input.name] = c_input.phase == "START"
             self._update_player_velocity()
+        elif self.is_paused:
+            return
         elif c_input.name == "PLAYER_FIRE":
             self._fire_bullet(c_input.mouse_pos)
+        elif c_input.name == "PLAYER_SPECIAL" and c_input.phase == "START":
+            self._fire_special()
+
+    def _toggle_pause(self):
+        self.is_paused = not self.is_paused
+        if self.is_paused:
+            create_pause_text(self.interface_cfg)
+        else:
+            for entity, _ in esper.get_component(CTagPauseText):
+                esper.delete_entity(entity, immediate=True)
+
+    def _fire_special(self):
+        c_sp = esper.component_for_entity(self._player_entity, CSpecialAttack)
+        if not c_sp.ready:
+            return
+        c_sp.remaining = c_sp.cooldown
+        c_t = esper.component_for_entity(self._player_entity, CTransform)
+        c_s = esper.component_for_entity(self._player_entity, CSurface)
+        create_special_bullets(self.special_cfg, c_t.pos, c_s.area.size)
+        for _, c_sh in esper.get_component(CScreenShake):
+            c_sh.time = self.special_cfg["shake_time"]
+            c_sh.magnitude = self.special_cfg["shake_magnitude"]
 
     def _update_player_velocity(self):
         keys = self._player_keys
@@ -129,7 +176,7 @@ class GameEngine:
         c_v.vel = direction * self.player_cfg["input_velocity"]
 
     def _fire_bullet(self, mouse_pos:tuple):
-        if len(esper.get_component(CTagBullet)) >= self.level_cfg["max_bullets"]:
+        if len(esper.get_component(CTagBullet)) >= self.level_cfg["player_spawn"]["max_bullets"]:
             return
         c_t = esper.component_for_entity(self._player_entity, CTransform)
         c_s = esper.component_for_entity(self._player_entity, CSurface)

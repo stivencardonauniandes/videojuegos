@@ -1,0 +1,26 @@
+{
+    "font": "assets/fnt/PressStart2P.ttf",
+    "title": {
+        "text": "SOLO ALIENS PA'", "size": 16,
+        "color": {"r": 255, "g": 255, "b": 255},
+        "position": {"x": 320, "y": 8}
+    },
+    "pause": {
+        "text": "PAUSED", "size": 24,
+        "color": {"r": 255, "g": 220, "b": 0},
+        "position": {"x": 320, "y": 180}
+    },
+    "instructions": {
+        "text": "ARROWS: MOVE  CLICK: FIRE  SPACE: SPECIAL  P: PAUSE", "size": 8,
+        "color": {"r": 180, "g": 180, "b": 180},
+        "position": {"x": 320, "y": 344}
+    },
+    "special": {
+        "size": 8,
+        "color_ready": {"r": 0, "g": 255, "b": 128},
+        "color_charging": {"r": 255, "g": 80, "b": 80},
+        "text_ready": "SPECIAL: READY",
+        "text_charging": "SPECIAL: {:.1f}s",
+        "position": {"x": 8, "y": 24}
+    }
+}

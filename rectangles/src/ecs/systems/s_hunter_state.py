@@ -7,6 +7,7 @@ from src.ecs.components.c_surface import CSurface
 from src.ecs.components.c_tag_player import CTagPlayer
 from src.ecs.components.c_transform import CTransform
 from src.ecs.components.c_velocity import CVelocity
+from src.engine.service_locator import ServiceLocator
 
 def system_hunter_state(delta_time:float):
     players = esper.get_components(CTransform, CSurface, CTagPlayer)
@@ -30,6 +31,7 @@ def system_hunter_state(delta_time:float):
         if c_h.state == "IDLE":
             if to_player.length() <= c_h.distance_start_chase:
                 c_h.state = "CHASE"
+                ServiceLocator.sounds_service.play(c_h.sound_chase)
         elif c_h.state == "CHASE":
             if to_origin.length() > c_h.distance_start_return:
                 c_h.state = "RETURN"
